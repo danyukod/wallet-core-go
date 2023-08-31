@@ -13,7 +13,7 @@ type Client struct {
 	UpdateAt time.Time
 }
 
-func NewClient(id, name, email string) (*Client, error) {
+func NewClient(name, email string) (*Client, error) {
 	return &Client{
 		ID:       uuid.New().String(),
 		Name:     name,
