@@ -23,15 +23,15 @@ type CreateClientUseCase interface {
 	Execute(input CreateClientInputDTO) (*CreateClientOutputDTO, error)
 }
 
-type CreateClientInteractor struct {
+type CreateClientInteract struct {
 	gateway.ClientGateway
 }
 
-func NewCreateClientInteractor(clientGateway gateway.ClientGateway) *CreateClientInteractor {
-	return &CreateClientInteractor{clientGateway}
+func NewCreateClientInteract(clientGateway gateway.ClientGateway) *CreateClientInteract {
+	return &CreateClientInteract{clientGateway}
 }
 
-func (i *CreateClientInteractor) Execute(input CreateClientInputDTO) (*CreateClientOutputDTO, error) {
+func (i *CreateClientInteract) Execute(input CreateClientInputDTO) (*CreateClientOutputDTO, error) {
 	client, err := entity.NewClient(input.Name, input.Email)
 	if err != nil {
 		return nil, err
