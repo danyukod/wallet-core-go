@@ -25,7 +25,7 @@ func TestCreateClientInteractor_Execute(t *testing.T) {
 	m := &ClientGatewayMock{}
 	m.On("Save", mock.Anything).Return(nil)
 
-	i := NewCreateClientInteractor(m)
+	i := NewCreateClientInteract(m)
 
 	input := CreateClientInputDTO{
 		Name:  "John Doe",
