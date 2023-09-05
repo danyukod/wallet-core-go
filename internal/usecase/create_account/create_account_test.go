@@ -16,7 +16,7 @@ func (m *AccountGatewayMock) Save(account *entity.Account) error {
 	return args.Error(0)
 }
 
-func (m *AccountGatewayMock) FindById(id int) (*entity.Account, error) {
+func (m *AccountGatewayMock) FindById(id string) (*entity.Account, error) {
 	args := m.Called(id)
 	return args.Get(0).(*entity.Account), args.Error(1)
 }
