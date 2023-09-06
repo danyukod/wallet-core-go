@@ -8,7 +8,7 @@ import (
 type Account struct {
 	ID        string
 	Client    *Client
-	Balance   float64
+	Balance   int
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -27,12 +27,12 @@ func NewAccount(client *Client) *Account {
 	return account
 }
 
-func (a *Account) Credit(amount float64) {
+func (a *Account) Credit(amount int) {
 	a.Balance += amount
 	a.UpdatedAt = time.Now()
 }
 
-func (a *Account) Debit(amount float64) {
+func (a *Account) Debit(amount int) {
 	a.Balance -= amount
 	a.UpdatedAt = time.Now()
 }

@@ -10,11 +10,11 @@ type Transaction struct {
 	ID          string
 	AccountFrom *Account
 	AccountTo   *Account
-	Amount      float64
+	Amount      int
 	CreatedAt   time.Time
 }
 
-func NewTransaction(accountFrom, accountTo *Account, amount float64) (*Transaction, error) {
+func NewTransaction(accountFrom, accountTo *Account, amount int) (*Transaction, error) {
 	transaction := &Transaction{
 		ID:          uuid.New().String(),
 		AccountFrom: accountFrom,
