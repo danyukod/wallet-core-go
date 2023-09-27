@@ -3,6 +3,7 @@ module github.com/danyukod/wallet-core-go
 go 1.20
 
 require (
+ 	github.com/danyukod/chave-pix-utils v0.0.0-20230923010120-5258ceab8b0d
 	github.com/google/uuid v1.3.1
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/stretchr/testify v1.8.4
