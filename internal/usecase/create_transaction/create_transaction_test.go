@@ -1,7 +1,9 @@
 package create_transaction
 
 import (
+	"github.com/danyukod/chave-pix-utils/pkg/events"
 	"github.com/danyukod/wallet-core-go/internal/entity"
+	"github.com/danyukod/wallet-core-go/internal/event"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -54,7 +56,10 @@ func TestCreateTransactionInteractor_Execute(t *testing.T) {
 		Amount:        100,
 	}
 
-	i := NewCreateTransactionInteractor(mt, ma)
+	dispatcher := events.NewEventDispatcher()
+	event := event.NewTransactionCreated()
+
+	i := NewCreateTransactionInteractor(mt, ma, dispatcher, event)
 
 	output, err := i.Execute(&inputDto)
 
