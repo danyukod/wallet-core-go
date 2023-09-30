@@ -1,4 +1,4 @@
-package create_transaction
+package usecase
 
 import (
 	"github.com/danyukod/chave-pix-utils/pkg/events"
