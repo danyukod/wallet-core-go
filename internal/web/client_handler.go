@@ -6,15 +6,15 @@ import (
 	"net/http"
 )
 
-type WebClientHandler struct {
+type ClientHandler struct {
 	CreateClientUseCase usecase.CreateClientUseCase
 }
 
-func NewWebClientHandler(createClientUseCase usecase.CreateClientUseCase) *WebClientHandler {
-	return &WebClientHandler{CreateClientUseCase: createClientUseCase}
+func NewWebClientHandler(createClientUseCase usecase.CreateClientUseCase) *ClientHandler {
+	return &ClientHandler{CreateClientUseCase: createClientUseCase}
 }
 
-func (h *WebClientHandler) CreateClient(w http.ResponseWriter, r *http.Request) {
+func (h *ClientHandler) CreateClient(w http.ResponseWriter, r *http.Request) {
 	var dto usecase.CreateClientInputDTO
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if err != nil {
