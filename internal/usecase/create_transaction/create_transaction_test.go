@@ -59,7 +59,7 @@ func TestCreateTransactionInteractor_Execute(t *testing.T) {
 	dispatcher := events.NewEventDispatcher()
 	event := event.NewTransactionCreated()
 
-	i := NewCreateTransactionInteractor(mt, ma, dispatcher, event)
+	i := NewCreateTransactionInteract(mt, ma, dispatcher, event)
 
 	output, err := i.Execute(&inputDto)
 

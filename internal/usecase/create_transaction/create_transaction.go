@@ -27,7 +27,7 @@ type CreateTransactionInteractor struct {
 	events.EventInterface
 }
 
-func NewCreateTransactionInteractor(transactionGateway gateway.TransactionGateway,
+func NewCreateTransactionInteract(transactionGateway gateway.TransactionGateway,
 	accountGateway gateway.AccountGateway,
 	eventDispatcher events.EventDispatcherInterface,
 	transactionCreated events.EventInterface) *CreateTransactionInteractor {

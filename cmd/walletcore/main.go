@@ -10,6 +10,8 @@ import (
 	accountUsecase "github.com/danyukod/wallet-core-go/internal/usecase/create_account"
 	clientUsecase "github.com/danyukod/wallet-core-go/internal/usecase/create_client"
 	transactionUsecase "github.com/danyukod/wallet-core-go/internal/usecase/create_transaction"
+	"github.com/danyukod/wallet-core-go/internal/web"
+	"github.com/danyukod/wallet-core-go/internal/web/webserver"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -33,7 +35,22 @@ func main() {
 	accountGateway := gateway.NewAccountGateway(*accountDb)
 	transactionGateway := gateway.NewTransactionGateway(*transactionDb)
 
-	clientUsecase := clientUsecase.NewCreateClientInteract(clientGateway)
-	accountUsecase := accountUsecase.NewCreateAccountInteract(accountGateway, clientGateway)
-	transactionUsecase := transactionUsecase.NewCreateTransactionInteractor(transactionGateway, accountGateway, eventDispatcher, transactionCreatedEvent)
+	createClientInteract := clientUsecase.NewCreateClientInteract(clientGateway)
+	createAccountInteract := accountUsecase.NewCreateAccountInteract(accountGateway, clientGateway)
+	createTransactionInteract := transactionUsecase.NewCreateTransactionInteract(transactionGateway, accountGateway, eventDispatcher, transactionCreatedEvent)
+
+	webServer := webserver.NewWebServer(":3000")
+
+	clientHandler := web.NewWebClientHandler(createClientInteract)
+	accountHandler := web.NewWebAccountHandler(createAccountInteract)
+	transactionHandler := web.NewWebTransactionHandler(createTransactionInteract)
+
+	webServer.AddHandler("/clients", clientHandler.CreateClient)
+	webServer.AddHandler("/accounts", accountHandler.CreateAccount)
+	webServer.AddHandler("/transactions", transactionHandler.CreateTransaction)
+
+	err = webServer.Start()
+	if err != nil {
+		return
+	}
 }
