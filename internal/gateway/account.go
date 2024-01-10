@@ -8,6 +8,7 @@ import (
 type AccountGateway interface {
 	Save(account *entity.Account) error
 	FindById(id string) (*entity.Account, error)
+	UpdateBalance(account *entity.Account) error
 }
 
 type AccountRepository struct {
@@ -32,4 +33,12 @@ func (a AccountRepository) FindById(id string) (*entity.Account, error) {
 		return nil, err
 	}
 	return account, nil
+}
+
+func (a AccountRepository) UpdateBalance(account *entity.Account) error {
+	err := a.UpdateBalance(account)
+	if err != nil {
+		return err
+	}
+	return nil
 }
