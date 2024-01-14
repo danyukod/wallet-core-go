@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"github.com/danyukod/chave-pix-utils/pkg/events"
+	"github.com/danyukod/chave-pix-utils/pkg/uow"
 	"github.com/danyukod/wallet-core-go/internal/database"
 	"github.com/danyukod/wallet-core-go/internal/event"
 	"github.com/danyukod/wallet-core-go/internal/gateway"
@@ -29,15 +31,24 @@ func main() {
 
 	clientDb := database.NewClientDB(db)
 	accountDb := database.NewAccountDB(db)
-	transactionDb := database.NewTransactionDB(db)
+
+	ctx := context.Background()
+	uow := uow.NewUow(ctx, db)
+
+	uow.Register("AccountDB", func(tx *sql.Tx) interface{} {
+		return database.NewAccountDB(db)
+	})
+
+	uow.Register("TransactionDB", func(tx *sql.Tx) interface{} {
+		return database.NewTransactionDB(db)
+	})
 
 	clientGateway := gateway.NewClientGateway(*clientDb)
 	accountGateway := gateway.NewAccountGateway(*accountDb)
-	transactionGateway := gateway.NewTransactionGateway(*transactionDb)
 
 	createClientInteract := clientUsecase.NewCreateClientInteract(clientGateway)
 	createAccountInteract := accountUsecase.NewCreateAccountInteract(accountGateway, clientGateway)
-	createTransactionInteract := transactionUsecase.NewCreateTransactionInteract(transactionGateway, accountGateway, eventDispatcher, transactionCreatedEvent)
+	createTransactionInteract := transactionUsecase.NewCreateTransactionInteract(uow, eventDispatcher, transactionCreatedEvent)
 
 	webServer := webserver.NewWebServer(":3000")
 
