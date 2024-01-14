@@ -1,36 +1,15 @@
 package usecase
 
 import (
+	"context"
 	"github.com/danyukod/chave-pix-utils/pkg/events"
 	"github.com/danyukod/wallet-core-go/internal/entity"
 	"github.com/danyukod/wallet-core-go/internal/event"
+	"github.com/danyukod/wallet-core-go/internal/usecase/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
 )
-
-type TransactionGatewayMock struct {
-	mock.Mock
-}
-
-type AccountGatewayMock struct {
-	mock.Mock
-}
-
-func (m *AccountGatewayMock) FindById(id string) (*entity.Account, error) {
-	args := m.Called(id)
-	return args.Get(0).(*entity.Account), args.Error(1)
-}
-
-func (m *AccountGatewayMock) Save(account *entity.Account) error {
-	args := m.Called(account)
-	return args.Error(0)
-}
-
-func (m *TransactionGatewayMock) Create(transaction *entity.Transaction) error {
-	args := m.Called(transaction)
-	return args.Error(0)
-}
 
 func TestCreateTransactionInteractor_Execute(t *testing.T) {
 	clientFrom, _ := entity.NewClient("client1", "client1@email.com")
@@ -41,16 +20,10 @@ func TestCreateTransactionInteractor_Execute(t *testing.T) {
 	accountFrom.Credit(1000)
 	accountTo.Credit(100)
 
-	ma := &AccountGatewayMock{}
+	mockUow := &mocks.UowMock{}
+	mockUow.On("Do", mock.Anything, mock.Anything).Return(nil)
 
-	ma.On("FindById", accountFrom.ID).Return(accountFrom, nil)
-	ma.On("FindById", accountTo.ID).Return(accountTo, nil)
-
-	mt := &TransactionGatewayMock{}
-
-	mt.On("Create", mock.Anything).Return(nil)
-
-	inputDto := CreateTransactionInputDTO{
+	inputDto := &CreateTransactionInputDTO{
 		AccountIdFrom: accountFrom.ID,
 		AccountIdTo:   accountTo.ID,
 		Amount:        100,
@@ -58,16 +31,14 @@ func TestCreateTransactionInteractor_Execute(t *testing.T) {
 
 	dispatcher := events.NewEventDispatcher()
 	event := event.NewTransactionCreated()
+	ctx := context.Background()
 
-	i := NewCreateTransactionInteract(mt, ma, dispatcher, event)
+	i := NewCreateTransactionInteract(mockUow, dispatcher, event)
 
-	output, err := i.Execute(&inputDto)
+	output, err := i.Execute(ctx, inputDto)
 
 	assert.NotNil(t, output)
 	assert.Nil(t, err)
-	ma.AssertExpectations(t)
-	mt.AssertExpectations(t)
-	ma.AssertNumberOfCalls(t, "FindById", 2)
-	mt.AssertNumberOfCalls(t, "Create", 1)
-
+	mockUow.AssertExpectations(t)
+	mockUow.AssertNumberOfCalls(t, "Do", 1)
 }
