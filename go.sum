@@ -6,6 +6,8 @@ github.com/danyukod/chave-pix-utils v0.0.0-20240114150458-914244cfd7d8 h1:1g6xJQ
 github.com/danyukod/chave-pix-utils v0.0.0-20240114150458-914244cfd7d8/go.mod h1:hemrLnHAQl+uQQZKNLlD0rpUmkI2wQJJZ8WikeXrxL0=
 github.com/danyukod/chave-pix-utils v0.0.0-20240114222207-4e89b9d148cb h1:vCnzpbj1IQDa1qih5luCGzngfq3/nYMfVcLsWcVrFbE=
 github.com/danyukod/chave-pix-utils v0.0.0-20240114222207-4e89b9d148cb/go.mod h1:hemrLnHAQl+uQQZKNLlD0rpUmkI2wQJJZ8WikeXrxL0=
+github.com/danyukod/chave-pix-utils v0.0.0-20240119234154-b18ef836f633 h1:dGffHcRUAz+8qIkRSFx8+QBtd7Fl9fHqS/6ZKzIZgNc=
+github.com/danyukod/chave-pix-utils v0.0.0-20240119234154-b18ef836f633/go.mod h1:KtyYjN8GvQ42SFHhTr02KlmErwBR66OmV2eBrZ0zrWY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
