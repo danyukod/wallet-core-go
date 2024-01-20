@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/danyukod/chave-pix-utils/pkg/events"
+	"github.com/danyukod/chave-pix-utils/pkg/kafka"
 	"github.com/danyukod/chave-pix-utils/pkg/uow"
 	"github.com/danyukod/wallet-core-go/internal/database"
 	"github.com/danyukod/wallet-core-go/internal/event"
+	"github.com/danyukod/wallet-core-go/internal/event/handler"
 	"github.com/danyukod/wallet-core-go/internal/gateway"
 	accountUsecase "github.com/danyukod/wallet-core-go/internal/usecase/create_account"
 	clientUsecase "github.com/danyukod/wallet-core-go/internal/usecase/create_client"
@@ -25,9 +28,19 @@ func main() {
 	}
 	defer db.Close()
 
+	configMap := ckafka.ConfigMap{
+		"bootstrap.servers": "kafka:9092",
+		"group.id":          "wallet",
+	}
+
+	kafkaProducer := kafka.NewKafkaProducer(&configMap)
+
 	eventDispatcher := events.NewEventDispatcher()
+	err = eventDispatcher.Register("TransactionCreated", handler.NewTransactionCreatedKafkaHandler(kafkaProducer))
+	if err != nil {
+		panic(err)
+	}
 	transactionCreatedEvent := event.NewTransactionCreated()
-	//eventDispatcher.Register("TransactionCreated", handler)
 
 	clientDb := database.NewClientDB(db)
 	accountDb := database.NewAccountDB(db)
