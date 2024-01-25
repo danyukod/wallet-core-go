@@ -21,6 +21,13 @@ type CreateTransactionOutputDTO struct {
 	Amount        int    `json:"amount"`
 }
 
+type BalanceUpdatedOutputDTO struct {
+	AccountIDFrom        string `json:"account_id_from"`
+	AccountIDTo          string `json:"account_id_to"`
+	BalanceAccountIDFrom int    `json:"balance_account_id_from"`
+	BalanceAccountIDTo   int    `json:"balance_account_id_to"`
+}
+
 type CreateTransactionUseCase interface {
 	Execute(ctx context.Context, input *CreateTransactionInputDTO) (*CreateTransactionOutputDTO, error)
 }
@@ -28,22 +35,26 @@ type CreateTransactionUseCase interface {
 type CreateTransactionInteractor struct {
 	uow.UowInterface
 	events.EventDispatcherInterface
-	events.EventInterface
+	TransactionCreated events.EventInterface
+	BalanceUpdated     events.EventInterface
 }
 
 func NewCreateTransactionInteract(
 	uow uow.UowInterface,
 	eventDispatcher events.EventDispatcherInterface,
-	transactionCreated events.EventInterface) *CreateTransactionInteractor {
+	transactionCreated events.EventInterface,
+	balanceUpdated events.EventInterface) *CreateTransactionInteractor {
 	return &CreateTransactionInteractor{
 		uow,
 		eventDispatcher,
 		transactionCreated,
+		balanceUpdated,
 	}
 }
 
 func (i *CreateTransactionInteractor) Execute(ctx context.Context, input *CreateTransactionInputDTO) (*CreateTransactionOutputDTO, error) {
 	output := &CreateTransactionOutputDTO{}
+	balanceUpdatedOutput := &BalanceUpdatedOutputDTO{}
 	err := i.Do(ctx, func(_ *uow.Uow) error {
 		accountRepository := i.getAccountRepository(ctx)
 		transactionRepository := i.getTransactionRepository(ctx)
@@ -82,14 +93,21 @@ func (i *CreateTransactionInteractor) Execute(ctx context.Context, input *Create
 		output.AccountIDTo = input.AccountIdTo
 		output.Amount = input.Amount
 
+		balanceUpdatedOutput.AccountIDFrom = input.AccountIdFrom
+		balanceUpdatedOutput.AccountIDTo = input.AccountIdTo
+		balanceUpdatedOutput.BalanceAccountIDFrom = accountFrom.Balance
+		balanceUpdatedOutput.BalanceAccountIDTo = accountTo.Balance
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	i.EventInterface.SetPayload(output)
-	i.EventDispatcherInterface.Dispatch(i.EventInterface)
+	i.TransactionCreated.SetPayload(output)
+	i.EventDispatcherInterface.Dispatch(i.TransactionCreated)
+
+	i.BalanceUpdated.SetPayload(balanceUpdatedOutput)
+	i.EventDispatcherInterface.Dispatch(i.BalanceUpdated)
 
 	return output, nil
 }

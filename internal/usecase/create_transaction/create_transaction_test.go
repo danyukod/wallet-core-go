@@ -30,10 +30,11 @@ func TestCreateTransactionInteractor_Execute(t *testing.T) {
 	}
 
 	dispatcher := events.NewEventDispatcher()
-	event := event.NewTransactionCreated()
+	eventTransaction := event.NewTransactionCreated()
+	eventBalance := event.NewBalanceUpdated()
 	ctx := context.Background()
 
-	i := NewCreateTransactionInteract(mockUow, dispatcher, event)
+	i := NewCreateTransactionInteract(mockUow, dispatcher, eventTransaction, eventBalance)
 
 	output, err := i.Execute(ctx, inputDto)
 
