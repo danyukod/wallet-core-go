@@ -40,7 +40,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	err = eventDispatcher.Register("BalanceUpdated", handler.NewUpdateBalanceKafkaHandler(kafkaProducer))
+	if err != nil {
+		panic(err)
+	}
 	transactionCreatedEvent := event.NewTransactionCreated()
+	balanceUpdatedEvent := event.NewBalanceUpdated()
 
 	clientDb := database.NewClientDB(db)
 	accountDb := database.NewAccountDB(db)
@@ -61,7 +66,7 @@ func main() {
 
 	createClientInteract := clientUsecase.NewCreateClientInteract(clientGateway)
 	createAccountInteract := accountUsecase.NewCreateAccountInteract(accountGateway, clientGateway)
-	createTransactionInteract := transactionUsecase.NewCreateTransactionInteract(uow, eventDispatcher, transactionCreatedEvent)
+	createTransactionInteract := transactionUsecase.NewCreateTransactionInteract(uow, eventDispatcher, transactionCreatedEvent, balanceUpdatedEvent)
 
 	webServer := webserver.NewWebServer(":8080")
 
