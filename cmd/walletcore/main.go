@@ -4,10 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/danyukod/chave-pix-utils/pkg/events"
+	"github.com/danyukod/chave-pix-utils/pkg/kafka"
 	"github.com/danyukod/chave-pix-utils/pkg/uow"
 	"github.com/danyukod/wallet-core-go/internal/database"
 	"github.com/danyukod/wallet-core-go/internal/event"
+	"github.com/danyukod/wallet-core-go/internal/event/handler"
 	"github.com/danyukod/wallet-core-go/internal/gateway"
 	accountUsecase "github.com/danyukod/wallet-core-go/internal/usecase/create_account"
 	clientUsecase "github.com/danyukod/wallet-core-go/internal/usecase/create_client"
@@ -19,15 +22,25 @@ import (
 
 func main() {
 
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", "root", "root", "localhost", "3306", "wallet"))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=true", "root", "root", "mysql", "3306", "wallet"))
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
+	configMap := ckafka.ConfigMap{
+		"bootstrap.servers": "kafka:29092",
+		"group.id":          "wallet",
+	}
+
+	kafkaProducer := kafka.NewKafkaProducer(&configMap)
+
 	eventDispatcher := events.NewEventDispatcher()
+	err = eventDispatcher.Register("TransactionCreated", handler.NewTransactionCreatedKafkaHandler(kafkaProducer))
+	if err != nil {
+		panic(err)
+	}
 	transactionCreatedEvent := event.NewTransactionCreated()
-	//eventDispatcher.Register("TransactionCreated", handler)
 
 	clientDb := database.NewClientDB(db)
 	accountDb := database.NewAccountDB(db)
@@ -50,7 +63,7 @@ func main() {
 	createAccountInteract := accountUsecase.NewCreateAccountInteract(accountGateway, clientGateway)
 	createTransactionInteract := transactionUsecase.NewCreateTransactionInteract(uow, eventDispatcher, transactionCreatedEvent)
 
-	webServer := webserver.NewWebServer(":3000")
+	webServer := webserver.NewWebServer(":8080")
 
 	clientHandler := web.NewWebClientHandler(createClientInteract)
 	accountHandler := web.NewWebAccountHandler(createAccountInteract)
@@ -60,6 +73,7 @@ func main() {
 	webServer.AddHandler("/accounts", accountHandler.CreateAccount)
 	webServer.AddHandler("/transactions", transactionHandler.CreateTransaction)
 
+	fmt.Println("Server is running")
 	err = webServer.Start()
 	if err != nil {
 		return

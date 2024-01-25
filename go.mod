@@ -3,7 +3,8 @@ module github.com/danyukod/wallet-core-go
 go 1.20
 
 require (
-	github.com/danyukod/chave-pix-utils v0.0.0-20240114222207-4e89b9d148cb
+	github.com/confluentinc/confluent-kafka-go v1.9.2
+	github.com/danyukod/chave-pix-utils v0.0.0-20240119234154-b18ef836f633
 	github.com/go-chi/chi v1.5.5
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/google/uuid v1.3.1
